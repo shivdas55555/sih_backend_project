@@ -1,7 +1,10 @@
 import axios from "axios";
 
+// Dynamically select production API URL on Vercel or localhost during development
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/api` 
+    : "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -10,7 +13,6 @@ const API = axios.create({
 // Intercept requests and dynamically add the Authorization token
 API.interceptors.request.use(
   (config) => {
-    // Make sure 'token' matches the key name you used when saving upon login
     const token = localStorage.getItem("token"); 
 
     if (token) {
