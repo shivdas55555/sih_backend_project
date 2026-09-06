@@ -1,81 +1,102 @@
-const express=require('express');
-const Task=require('../models/task');
-const authMiddleware=require('../middlewares/authMiddleware');
+const express = require('express');
+const Task = require('../models/Task');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-const router=express.Router();
+const router = express.Router();
+
+// ==========================================
+// PUBLIC ROUTES (No Auth Required)
+// Allows the frontend dropdown to fetch all tasks/problems
+// ==========================================
+
+// GET /api/tasks -> Retrieve all tasks for public display/dropdown
+router.get('/', async (req, res) => {
+  try {
+    const tasks = await Task.find({}).sort({ createdAt: -1 });
+    res.status(200).json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// PROTECTED ROUTES (Requires Authentication)
+// ==========================================
+
+// Apply auth middleware to all routes defined BELOW this line
 router.use(authMiddleware);
 
-//1 create or add new task
-router.post('/',async (req,res)=>{
-  try{
-    const {title,description,status}= req.body;
+// 1. Create or add new task
+router.post('/', async (req, res) => {
+  try {
+    const { title, category, description, location } = req.body;
 
-    if(!title||!description)return res.status(400).json({message:"Title and Description must be required"})
-    const task=new Task({
-  title,
-  description,
-  status,
-  user:req.user.id
-  })
-  await task.save();
-  res.status(201).json({message:"task Created Successfully",task});
-  }
-  catch(err){
-   res.status(500).json({error:err.message});
-  }
-})
-//2 read: get all created tasks
-router.post('/',async(req,res)=>{
-  try{
-   const tasks=await Task.find({user:req.user.id}).sort({createdAt:-1});
-   res.json(tasks)
-  }
-  catch(err){
-   res.status(500).json({ error: err.message });
-  }
-})
+    if (!title || !category || !description || !location) {
+      return res
+        .status(400)
+        .json({ message: "Title, category, description, and location are required." });
+    }
 
-//3 single task: given =._id
-router.get('/:id',async(req,res)=>{
-  try{
-    const task=await Task.findOne({_id:req.params.id,user:req.user.id})
-    if(!task)return res.status(404).message({message:"Task Not Found"})
-    res.json(task)
-    
-  }
-  catch(err){
-    res.status(500).json({error:err.message})
-  }
-})
+    const task = new Task({
+      title,
+      category,
+      description,
+      location,
+      user: req.user.id,
+    });
 
-router.put('/:id',async(req,res)=>{
-  try{
-    const {title,description,status}=req.body;
-    const task=await Task.findOne({_id:req.params.id,user:req.user.id});
-
-    if(!task)return res.status(404).json({message:"task not found or unauthorized"})
-    if(title)task.title=title
-    if(description)task.description=description
-    if(status)task.status=status
     await task.save();
-    res.json({message:"Task Updated Successfully",task})
-
+    res.status(201).json({ message: "Task created successfully", task });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
+});
 
-  catch(err){
-    return res.status(500).json({error:err.message})
+// 2. Get single task by ID for authenticated user
+router.get('/:id', async (req, res) => {
+  try {
+    const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
+    if (!task) {
+      return res.status(404).json({ message: "Task Not Found" });
+    }
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-})
+});
 
-router.delete('/:id',async(req,res)=>{
-  try{
-    const task=await Task.findOneAndDelete({_id:req.params.id,user:req.user.id});
-    if(!task)return res.status(404).json({message:"task cannot found"})
-      res.json({message:"Deleted Success"})
-  }
-  catch(err){
-    return res.status(500).json({error:err.message})
-  }
-})
+// 3. Update task
+router.put('/:id', async (req, res) => {
+  try {
+    const { title, description, status } = req.body;
+    const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
 
-module.exports=router;
+    if (!task) {
+      return res.status(404).json({ message: "Task not found or unauthorized" });
+    }
+
+    if (title) task.title = title;
+    if (description) task.description = description;
+    if (status) task.status = status;
+
+    await task.save();
+    res.json({ message: "Task updated successfully", task });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// 4. Delete task
+router.delete('/:id', async (req, res) => {
+  try {
+    const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    res.json({ message: "Deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
