@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Automatically falls back to Render backend if environment variable is missing
-const rawBaseUrl = import.meta.env.VITE_API_URL || "https://sih-backend-project.onrender.com";
+const rawBaseUrl = import.meta.env.VITE_API_URL || "https://sih-backend-project.onrender.com/api";
 
 // Strip any trailing slashes or '/api' to prevent double path issues
 const cleanBaseUrl = rawBaseUrl.replace(/\/+$/, "").replace(/\/api$/, "");
