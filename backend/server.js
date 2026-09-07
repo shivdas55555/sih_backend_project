@@ -1,59 +1,48 @@
-const express=require('express');
-const cors=require('cors');
-const mongoose=require('mongoose');
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
 require('dotenv').config();
-const solutionRoutes = require("./routes/solutionRoutes");
 
-const authRoutes=require('./routes/authRoutes');
-const taskRoutes=require('./routes/taskRoutes');
-const app=express();
+const authRoutes = require('./routes/authRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const solutionRoutes = require('./routes/solutionRoutes');
 const collaborationRoutes = require('./routes/collaborationRoutes');
 
-// Mount routes
+const app = express();
 
-// Place BEFORE your app.use('/api/...', ...) routes
-
-// Allowed frontend origins
-const allowedOrigins = [
-  'http://localhost:5173', // Local Vite dev server
-  'http://localhost:3000', // Local CRA dev server (if applicable)
-  'https://repository-name-sih-jharkhand-innov-eight.vercel.app', // Vercel deployed frontend
-];
-
+// Enable CORS for all origins in development/production (or specify your exact Netlify domain)
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, Postman, or local file loads)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        return callback(null, true);
-      } else {
-        return callback(
-          new Error(`CORS policy violation: ${origin} is not allowed`)
-        );
-      }
-    },
+    origin: [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://sihproject55555.netlify.app'
+], // Allows all origins dynamically (including Netlify and localhost)
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
-
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Root health-check endpoint
+app.get('/', (req, res) => {
+  res.send('SIH Backend Server is active and running!');
+});
+
+// Mount API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/solutions', solutionRoutes);
 app.use('/api/collaborations', collaborationRoutes);
 
-mongoose.connect(process.env.MONGO_URI)
-.then(()=>{console.log("mongoose connected successfully")})
-.catch((err)=>{console.log(err,"there is error while connecting to mongodb")})
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch((err) => console.log('Error connecting to MongoDB:', err));
 
-app.use('/api/auth',authRoutes);
-app.use('/api/tasks',taskRoutes);
-app.use("/api/solutions", solutionRoutes);
-const PORT=process.env.PORT||5000;
-
-app.listen(PORT,()=>console.log(`server is running on port :${PORT}`))
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server is running on port: ${PORT}`));
