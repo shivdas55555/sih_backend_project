@@ -7,8 +7,11 @@ const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const solutionRoutes = require('./routes/solutionRoutes');
 const collaborationRoutes = require('./routes/collaborationRoutes');
-
 const app = express();
+app.get('/', (req, res) => {
+  res.status(200).send('SIH Backend Server is active and running!');
+});
+
 
 // Enable CORS for all origins in development/production (or specify your exact Netlify domain)
 app.use(
