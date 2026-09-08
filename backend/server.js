@@ -8,7 +8,11 @@ const taskRoutes = require('./routes/taskRoutes');
 const solutionRoutes = require('./routes/solutionRoutes');
 const collaborationRoutes = require('./routes/collaborationRoutes');
 const app = express();
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 
+const express = require('express');
+const mongoose = require('mongoose');
 
 // Enable CORS for all origins in development/production (or specify your exact Netlify domain)
 app.use(
@@ -44,7 +48,7 @@ app.use('/api/collaborations', collaborationRoutes);
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI,{family:4})
   .then(() => console.log('MongoDB connected successfully'))
   .catch((err) => console.log('Error connecting to MongoDB:', err));
 
