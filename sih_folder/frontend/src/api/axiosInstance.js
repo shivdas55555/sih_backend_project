@@ -3,7 +3,7 @@ import axios from "axios";
 const fallbackUrl = "https://sih-backend-project.onrender.com";
 let rawUrl = import.meta.env.VITE_API_URL || fallbackUrl;
 
-// Normalize common dashboard typos and prevent a duplicated Render host.
+// Clean stray brackets, parens, and spaces from environment variable inputs
 let cleanUrl = rawUrl
   .replace(/\[|\]|\(|\)/g, "")
   .replace(/^https?\/\//i, (protocol) => `${protocol.slice(0, -2)}://`)
@@ -15,24 +15,14 @@ if (cleanUrl.includes("sih-backend-project.onrender.com")) {
   cleanUrl = `https://${cleanUrl}`;
 }
 
+// Ensure base URL cleanly ends with /api
 const cleanBaseUrl = cleanUrl.replace(/\/+$/, "").replace(/\/api$/, "");
 
 const API = axios.create({
-  baseURL: `${cleanBaseUrl}/api`, // Evaluates strictly to https://sih-backend-project.onrender.com/api
+  baseURL: `${cleanBaseUrl}/api`,
   headers: {
     "Content-Type": "application/json",
   },
 });
-
-API.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 export default API;
