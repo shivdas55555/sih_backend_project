@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Import Models
-const Problem = require('./models/Problem');
+const Problem = require('./models/Task');
 const Solution = require('./models/Solution');
 const Collaboration = require('./models/Collaboration');
 
