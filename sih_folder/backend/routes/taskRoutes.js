@@ -1,15 +1,14 @@
 const express = require('express');
 const Task = require('../models/Task');
-const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
 // ==========================================
-// PUBLIC ROUTES (No Auth Required)
-// Allows the frontend dropdown to fetch all tasks/problems
+// PUBLIC ROUTES (No Authentication Required)
 // ==========================================
 
-// GET /api/tasks -> Retrieve all tasks for public display/dropdown
+// 1. Get all tasks/problems
+// GET /api/tasks
 router.get('/', async (req, res) => {
   try {
     const tasks = await Task.find({}).sort({ createdAt: -1 });
@@ -19,30 +18,38 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ==========================================
-// PROTECTED ROUTES (Requires Authentication)
-// ==========================================
+// 2. Get single task/problem by ID
+// GET /api/tasks/:id
+router.get('/:id', async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: "Task Not Found" });
+    }
+    res.status(200).json(task);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// Apply auth middleware to all routes defined BELOW this line
-router.use(authMiddleware);
-
-// 1. Create or add new task
+// 3. Create a new task/problem
+// POST /api/tasks
 router.post('/', async (req, res) => {
   try {
-    const { title, category, description, location } = req.body;
+    const { title, category, description, location, submittedBy } = req.body;
 
-    if (!title || !category || !description || !location) {
+    if (!title || !category || !description) {
       return res
         .status(400)
-        .json({ message: "Title, category, description, and location are required." });
+        .json({ message: "Title, category, and description are required." });
     }
 
     const task = new Task({
       title,
       category,
       description,
-      location,
-      user: req.user.id,
+      location: location || "Remote / General",
+      submittedBy: submittedBy || "Anonymous Innovator",
     });
 
     await task.save();
@@ -52,50 +59,41 @@ router.post('/', async (req, res) => {
   }
 });
 
-// 2. Get single task by ID for authenticated user
-router.get('/:id', async (req, res) => {
-  try {
-    const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
-    if (!task) {
-      return res.status(404).json({ message: "Task Not Found" });
-    }
-    res.json(task);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 3. Update task
+// 4. Update task/problem
+// PUT /api/tasks/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { title, description, status } = req.body;
-    const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
+    const { title, description, status, category, location } = req.body;
+    const task = await Task.findById(req.params.id);
 
     if (!task) {
-      return res.status(404).json({ message: "Task not found or unauthorized" });
+      return res.status(404).json({ message: "Task not found" });
     }
 
     if (title) task.title = title;
     if (description) task.description = description;
     if (status) task.status = status;
+    if (category) task.category = category;
+    if (location) task.location = location;
 
     await task.save();
-    res.json({ message: "Task updated successfully", task });
+    res.status(200).json({ message: "Task updated successfully", task });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 4. Delete task
+// 5. Delete task/problem
+// DELETE /api/tasks/:id
 router.delete('/:id', async (req, res) => {
   try {
-    const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    const task = await Task.findByIdAndDelete(req.params.id);
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
-    res.json({ message: "Deleted successfully" });
+    res.status(200).json({ message: "Deleted successfully" });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
