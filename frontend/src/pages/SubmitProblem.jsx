@@ -6,7 +6,7 @@ export default function SubmitProblem() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
-    category: "Infrastructure",
+    category: "Other",
     location: "",
     description: "",
     impactScore: "Medium",
@@ -26,7 +26,7 @@ export default function SubmitProblem() {
     setError("");
 
     try {
-      await API.post("/problems", formData);
+      await API.post("/tasks", formData);
       navigate("/challenges");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to post challenge.");
@@ -97,14 +97,13 @@ export default function SubmitProblem() {
                     onChange={handleChange}
                     className="w-full rounded-xl bg-slate-900/80 border border-slate-700 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500/80 focus:border-transparent transition"
                   >
-                    <option value="Infrastructure">Infrastructure</option>
                     <option value="Agriculture">Agriculture</option>
-                    <option value="Healthcare">Healthcare & Sanitation</option>
-                    <option value="Education">Education & Skill</option>
-                    <option value="Environment">Environment & Water</option>
-                    <option value="Governance">
-                      Governance & Public Services
-                    </option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education</option>
+                    <option value="Environment">Environment</option>
+                    <option value="Smart City">Smart City</option>
+                    <option value="Governance">Governance</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 

@@ -67,7 +67,7 @@ function Signup() {
       }
 
       // Redirect directly to Problem Submission page
-      navigate("/submit-task");
+      navigate("/submit-problem");
     } catch (err) {
       setErrorMsg(err.response?.data?.message || "Invalid or expired OTP.");
     } finally {

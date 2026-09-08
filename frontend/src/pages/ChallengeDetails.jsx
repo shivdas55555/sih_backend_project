@@ -94,7 +94,7 @@ function ChallengeDetails() {
 
             <button
               onClick={() => {
-                window.location.href = "/submit-solution";
+                window.location.href = `/submit-solution/${problem._id}`;
               }}
               className="rounded-xl bg-emerald-500 px-8 py-4 font-bold text-white shadow-lg transition hover:bg-emerald-400"
             >

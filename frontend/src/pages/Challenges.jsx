@@ -131,6 +131,12 @@ export default function Challenges() {
 
                   <Link
                     to={`/challenge-details/${task._id}`}
+                    onClick={() =>
+                      localStorage.setItem(
+                        "selectedChallenge",
+                        JSON.stringify(task),
+                      )
+                    }
                     className="mt-4 block w-full rounded-lg bg-slate-900 py-2 text-center text-xs font-bold text-white hover:bg-slate-800"
                   >
                     View Details & Submit Solution →

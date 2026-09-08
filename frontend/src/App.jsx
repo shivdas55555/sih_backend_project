@@ -25,7 +25,10 @@ export default function App() {
         <Route path="/" element={<HomeLanding />} />
         <Route path="/challenges" element={<ChallengesPage />} />
         <Route path="/register" element={<Signup />} />
-        <Route path="/challenge-details" element={<ChallengeDetails />} />
+        <Route
+          path="/challenge-details/:taskId"
+          element={<ChallengeDetails />}
+        />
         <Route path="/solutions" element={<Solutions />} />
         <Route path="/collaborate" element={<Collaborate />} />
         <Route path="/login" element={<Login />} />

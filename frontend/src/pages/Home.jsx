@@ -14,7 +14,7 @@ function HomeLanding() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await API.get("/api/tasks");
+      const res = await API.get("/tasks");
       // Read array whether backend wraps it in { data: [...] } or sends array directly
       setTasks(res.data.data || res.data || []);
     } catch (err) {
