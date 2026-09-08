@@ -8,24 +8,25 @@ const taskRoutes = require('./routes/taskRoutes');
 const solutionRoutes = require('./routes/solutionRoutes');
 const collaborationRoutes = require('./routes/collaborationRoutes');
 const app = express();
-app.get('/', (req, res) => {
-  res.status(200).send('SIH Backend Server is active and running!');
-});
 
 
 // Enable CORS for all origins in development/production (or specify your exact Netlify domain)
 app.use(
   cors({
     origin: [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'https://sihproject55555.netlify.app'
-], // Allows all origins dynamically (including Netlify and localhost)
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://sihproject55555.netlify.app'
+    ], // Allows all origins dynamically (including Netlify and localhost)
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+app.get('/', (req, res) => {
+  res.status(200).send('SIH Backend Server is active and running!');
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
